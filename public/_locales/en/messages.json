@@ -1,0 +1,10 @@
+{
+  "extensionDescription": {
+    "description": "Solana Analyzer Chrome extension",
+    "message": "Solana Analyzer Chrome extension"
+  },
+  "extensionName": {
+    "description": "Solana Analyzer",
+    "message": "Solana Analyzer Chrome extension"
+  }
+}
