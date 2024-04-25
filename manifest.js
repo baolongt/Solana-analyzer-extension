@@ -53,6 +53,10 @@ const manifest = {
       resources: ['assets/js/*.js', 'assets/css/*.css', 'icon-128.png', 'icon-34.png'],
       matches: ['*://*/*'],
     },
+    {
+      resources: ['src/pages/popup/*'],
+      matches: ['*://*/*'],
+    },
   ],
 };
 
