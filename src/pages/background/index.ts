@@ -14,12 +14,9 @@ console.log('background loaded');
 // Listen for messages from the content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'SIGN_AND_SEND_TRANSACTION') {
-    console.log('Received message from content script:', message.data);
     //TODO: analyze the message and send a response back to the content script
 
     chrome.storage.local.set({ data: message.data }, function () {
-      console.log('Data is stored in Chrome storage');
-
       chrome.windows.create({
         url: chrome.runtime.getURL('/src/pages/popup/index.html'),
         type: 'popup',
@@ -33,8 +30,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
-    console.log('Received message from popup:', message.data);
-
     // Get the current active tab
 
     // Get the current active tab

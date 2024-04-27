@@ -10,8 +10,6 @@ function initEventListener() {
       if (event.source != window) return;
 
       if (event.data.type && event.data.type == 'SIGN_AND_SEND_TRANSACTION') {
-        console.log('Received message: ', event.data.data);
-
         // Send a message to the background script
         chrome.runtime.sendMessage(
           {
@@ -31,8 +29,6 @@ function initEventListener() {
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
-      console.log('Received message from background script:', message.data);
-
       // Forward the message to the DOM
       window.postMessage(message, '*');
 

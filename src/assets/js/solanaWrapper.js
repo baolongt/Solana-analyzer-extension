@@ -13,9 +13,8 @@ window.solana.signAndSendTransaction = function (...args) {
 
   // Create a promise that resolves when the event is triggered
   const promise = new Promise((resolve, reject) => {
-    window.addEventListener(
-      'message',
-      async function (event) {
+    try {
+      window.addEventListener('message', async function (event) {
         // We only accept messages from ourselves
         if (event.source != window) return;
 
@@ -26,9 +25,11 @@ window.solana.signAndSendTransaction = function (...args) {
           // Resolve the promise
           resolve(result);
         }
-      },
-      false,
-    );
+      });
+    } catch (e) {
+      console.log('Error', e);
+      reject(e);
+    }
   });
 
   console.log('sent message');
