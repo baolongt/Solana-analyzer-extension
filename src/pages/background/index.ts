@@ -32,5 +32,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse('success');
   }
 
+  if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
+    console.log('Received message from popup:', message.data);
+
+    // Get the current active tab
+
+    // Get the current active tab
+    chrome.tabs.query({ active: true, currentWindow: false }, function (tabs) {
+      // Send the message to the content script
+      console.log('tabs ', tabs);
+      for (const tab of tabs) {
+        chrome.tabs.sendMessage(
+          tab.id,
+          {
+            type: 'APPROVE_SIGN_AND_SEND_TRANSACTION',
+            data: message.data,
+          },
+          function (response) {
+            console.log('Received response from content script:', response);
+          },
+        );
+      }
+    });
+
+    // Send a response back to the popup
+    sendResponse({ status: 'Message received' });
+  }
+
   return true;
 });

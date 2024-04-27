@@ -1,5 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const originalSignAndSendTransaction = window.solana.signAndSendTransaction;
-window.solana.signAndSendTransaction = async function (...args) {
+window.solana.signAndSendTransaction = function (...args) {
   console.log('Injecting code before signing transactions:', args);
 
   const message = {
@@ -10,23 +11,30 @@ window.solana.signAndSendTransaction = async function (...args) {
   // Send the message
   window.postMessage(message, '*');
 
-  //code to send message to open notification. This will eventually move into my extension logic
-  await window.postMessage(args);
+  // Create a promise that resolves when the event is triggered
+  const promise = new Promise((resolve, reject) => {
+    window.addEventListener(
+      'message',
+      async function (event) {
+        // We only accept messages from ourselves
+        if (event.source != window) return;
+
+        if (event.data.type && event.data.type == 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
+          console.log('Received approve', event.data.data);
+          const result = await originalSignAndSendTransaction(...args);
+          console.log('Injecting code after signing transactions:', result);
+          // Resolve the promise
+          resolve(result);
+        }
+      },
+      false,
+    );
+  });
 
   console.log('sent message');
 
-  return {
-    signature: '',
-  };
-
-  // if (userInput) {
-  //   const text = window.prompt('Please enter your text:');
-  //   if (text !== null) {
-  //     const result = originalSignAndSendTransaction.apply(this, args);
-  //     console.log('Injecting code after signing transactions:', result);
-  //     return result;
-  //   }
-  // } else throw new Error("user didn't confirm");
+  // Return the promise
+  return promise;
 };
 
 console.log('Injected code');

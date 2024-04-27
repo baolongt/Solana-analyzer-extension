@@ -20,9 +20,7 @@ function initEventListener() {
           },
           function (response) {
             if (response && response === 'success') {
-              chrome.storage.local.get('data', function (data) {
-                console.log('Data retrieved from Chrome storage: ', data);
-              });
+              console.log('sent to background successfull');
             }
           },
         );
@@ -30,6 +28,18 @@ function initEventListener() {
     },
     false,
   );
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
+      console.log('Received message from background script:', message.data);
+
+      // Forward the message to the DOM
+      window.postMessage(message, '*');
+
+      // Send a response back to the background script
+      sendResponse({ status: 'Message forwarded to DOM' });
+    }
+  });
 }
 
 void initEventListener();

@@ -8,7 +8,7 @@ import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 const Popup = () => {
   const theme = useStorage(exampleThemeStorage);
 
-  const [data, setData] = useState();
+  const [data, setData] = useState<unknown>();
 
   useEffect(() => {
     chrome.storage.local.get('data', function (data) {
@@ -20,6 +20,23 @@ const Popup = () => {
     });
   }, []);
 
+  const handleApprove = () => {
+    chrome.runtime.sendMessage(
+      {
+        type: 'APPROVE_SIGN_AND_SEND_TRANSACTION',
+        data,
+      },
+      function (response) {
+        console.log('Received response:', response);
+        window.close();
+      },
+    );
+  };
+
+  const handleReject = () => {
+    window.close();
+  };
+
   return (
     <div
       className="App"
@@ -27,6 +44,8 @@ const Popup = () => {
         backgroundColor: theme === 'light' ? '#fff' : '#000',
       }}>
       <h1>{data ? JSON.stringify(data) : 'No Data'}</h1>
+      <button onClick={() => handleReject()}>no</button>
+      <button onClick={() => handleApprove()}>yes</button>
     </div>
   );
 };
