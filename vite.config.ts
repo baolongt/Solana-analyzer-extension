@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path, { resolve } from 'path';
 import { getCacheInvalidationKey, getPlugins } from './utils/vite';
+import inject from '@rollup/plugin-inject';
 
 const rootDir = resolve(__dirname);
 const srcDir = resolve(rootDir, 'src');
@@ -31,6 +32,7 @@ export default defineConfig({
     reportCompressedSize: isProduction,
     emptyOutDir: !isDev,
     rollupOptions: {
+      plugins: [inject({ Buffer: ['buffer', 'Buffer'] })],
       input: {
         devtools: resolve(pagesDir, 'devtools', 'index.html'),
         panel: resolve(pagesDir, 'panel', 'index.html'),

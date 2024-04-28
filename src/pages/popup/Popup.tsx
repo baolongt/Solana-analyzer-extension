@@ -4,18 +4,23 @@ import useStorage from '@src/shared/hooks/useStorage';
 import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
+import { analyzeArguments } from './analyzeArguments';
 
 const Popup = () => {
   const theme = useStorage(exampleThemeStorage);
 
-  const [data, setData] = useState<unknown>();
+  const [data, setData] = useState<{
+    type: string;
+    data: unknown;
+  } | null>();
 
   useEffect(() => {
-    chrome.storage.local.get('data', function (data) {
+    chrome.storage.local.get('event', function (data) {
       console.log('Data retrieved from Chrome storage: ', data);
 
       if (data) {
-        setData(data);
+        setData(data.event);
+        console.log('Data retrieved from Chrome storage: ', data);
       }
     });
   }, []);
@@ -23,8 +28,8 @@ const Popup = () => {
   const handleApprove = () => {
     chrome.runtime.sendMessage(
       {
-        type: 'APPROVE_SIGN_AND_SEND_TRANSACTION',
-        data,
+        type: 'APPROVE_' + data.type,
+        data: data.data,
       },
       function (response) {
         console.log('Received response:', response);
@@ -34,7 +39,21 @@ const Popup = () => {
   };
 
   const handleReject = () => {
-    window.close();
+    chrome.runtime.sendMessage(
+      {
+        type: 'REJECT_' + data.type,
+        data: data.data,
+      },
+      function (response) {
+        console.log('Received response:', response);
+        window.close();
+      },
+    );
+  };
+
+  const handleDecode = () => {
+    console.log('data', data);
+    analyzeArguments(data.data);
   };
 
   return (
@@ -46,6 +65,7 @@ const Popup = () => {
       <h1>{data ? JSON.stringify(data) : 'No Data'}</h1>
       <button onClick={() => handleReject()}>no</button>
       <button onClick={() => handleApprove()}>yes</button>
+      <button onClick={() => handleDecode()}>decode</button>
     </div>
   );
 };

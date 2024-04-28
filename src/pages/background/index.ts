@@ -11,46 +11,75 @@ reloadOnUpdate('pages/content/style.scss');
 
 console.log('background loaded');
 
+const openPopup = () => {
+  chrome.windows.create({
+    url: chrome.runtime.getURL('/src/pages/popup/index.html'),
+    type: 'popup',
+    width: 500,
+    height: 600,
+    focused: true,
+  });
+};
+
+const storeDataAndEventType = (type: string, data: unknown) => {
+  chrome.storage.local.set(
+    {
+      event: {
+        type,
+        data,
+      },
+    },
+    function () {
+      openPopup();
+    },
+  );
+};
+
+const sendMessageToContentScripts = (type: string, data: unknown) => {
+  chrome.tabs.query({ active: true, currentWindow: false }, function (tabs) {
+    for (const tab of tabs) {
+      chrome.tabs.sendMessage(
+        tab.id,
+        {
+          type,
+          data,
+        },
+        function (response) {
+          console.log('Received response from content script:', response);
+        },
+      );
+    }
+  });
+};
+
 // Listen for messages from the content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Handle the message
   if (message.type === 'SIGN_AND_SEND_TRANSACTION') {
     //TODO: analyze the message and send a response back to the content script
-
-    chrome.storage.local.set({ data: message.data }, function () {
-      chrome.windows.create({
-        url: chrome.runtime.getURL('/src/pages/popup/index.html'),
-        type: 'popup',
-        width: 500,
-        height: 600,
-        focused: true,
-      });
-    });
-
+    storeDataAndEventType('SIGN_AND_SEND_TRANSACTION', message.data);
+    sendResponse('success');
+  }
+  if (message.type === 'SIGN_TRANSACTION') {
+    storeDataAndEventType('SIGN_TRANSACTION', message.data);
     sendResponse('success');
   }
 
+  // Send a response back to the content script
   if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
-    // Get the current active tab
-
-    // Get the current active tab
-    chrome.tabs.query({ active: true, currentWindow: false }, function (tabs) {
-      // Send the message to the content script
-      console.log('tabs ', tabs);
-      for (const tab of tabs) {
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            type: 'APPROVE_SIGN_AND_SEND_TRANSACTION',
-            data: message.data,
-          },
-          function (response) {
-            console.log('Received response from content script:', response);
-          },
-        );
-      }
-    });
-
-    // Send a response back to the popup
+    sendMessageToContentScripts('APPROVE_SIGN_AND_SEND_TRANSACTION', message.data);
+    sendResponse({ status: 'Message received' });
+  }
+  if (message.type === 'REJECT_SIGN_AND_SEND_TRANSACTION') {
+    sendMessageToContentScripts('REJECT_SIGN_AND_SEND_TRANSACTION', message.data);
+    sendResponse({ status: 'Message received' });
+  }
+  if (message.type === 'APPROVE_SIGN_TRANSACTION') {
+    sendMessageToContentScripts('APPROVE_SIGN_TRANSACTION', message.data);
+    sendResponse({ status: 'Message received' });
+  }
+  if (message.type === 'REJECT_SIGN_TRANSACTION') {
+    sendMessageToContentScripts('REJECT_SIGN_TRANSACTION', message.data);
     sendResponse({ status: 'Message received' });
   }
 
