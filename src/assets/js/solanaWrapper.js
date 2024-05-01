@@ -7,6 +7,7 @@ window.solana.signAndSendTransaction = function (...args) {
   const message = {
     type: 'SIGN_AND_SEND_TRANSACTION',
     data: args,
+    source: window.location.href,
   };
 
   // Send the message
@@ -47,6 +48,7 @@ window.solana.signTransaction = function (...args) {
   const message = {
     type: 'SIGN_TRANSACTION',
     data: args,
+    source: window.location.href,
   };
 
   // Send the message

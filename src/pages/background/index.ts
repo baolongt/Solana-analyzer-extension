@@ -21,12 +21,13 @@ const openPopup = () => {
   });
 };
 
-const storeDataAndEventType = (type: string, data: unknown) => {
+const storeDataAndEventType = (type: string, data: unknown, source: string) => {
   chrome.storage.local.set(
     {
       event: {
         type,
         data,
+        source,
       },
     },
     function () {
@@ -57,11 +58,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle the message
   if (message.type === 'SIGN_AND_SEND_TRANSACTION') {
     //TODO: analyze the message and send a response back to the content script
-    storeDataAndEventType('SIGN_AND_SEND_TRANSACTION', message.data);
+    storeDataAndEventType('SIGN_AND_SEND_TRANSACTION', message.data, message.source);
     sendResponse('success');
   }
   if (message.type === 'SIGN_TRANSACTION') {
-    storeDataAndEventType('SIGN_TRANSACTION', message.data);
+    storeDataAndEventType('SIGN_TRANSACTION', message.data, message.source);
     sendResponse('success');
   }
 
