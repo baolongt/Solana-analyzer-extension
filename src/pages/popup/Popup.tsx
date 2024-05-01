@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import '@pages/popup/Popup.css';
-import useStorage from '@src/shared/hooks/useStorage';
-import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { analyzeArguments } from './analyzeArguments';
 
 const Popup = () => {
-  const theme = useStorage(exampleThemeStorage);
-
   const [data, setData] = useState<{
     type: string;
     data: unknown;
@@ -57,11 +53,7 @@ const Popup = () => {
   };
 
   return (
-    <div
-      className="App"
-      style={{
-        backgroundColor: theme === 'light' ? '#fff' : '#000',
-      }}>
+    <div className="App">
       <h1>{data ? JSON.stringify(data) : 'No Data'}</h1>
       <button onClick={() => handleReject()}>no</button>
       <button onClick={() => handleApprove()}>yes</button>
