@@ -15,8 +15,8 @@ const openPopup = () => {
   chrome.windows.create({
     url: chrome.runtime.getURL('/src/pages/popup/index.html'),
     type: 'popup',
-    width: 900,
-    height: 600,
+    width: 592,
+    height: 500,
     focused: true,
   });
 };

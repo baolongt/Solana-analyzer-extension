@@ -42,7 +42,6 @@ const convertRawToBase58 = (
 
 export const analyzeArguments = async (args: unknown, source: string) => {
   if (!args) throw new Error('no arguments');
-  console.log('args', args);
   const programIds = new Set<string>();
   if (Array.isArray(args)) {
     for (const arg of args) {
@@ -128,14 +127,23 @@ export const analyzeArguments = async (args: unknown, source: string) => {
 
   console.log('programIds', programIds);
 
-  console.log(
-    await AIService.getInstance().analyzeArguments(
-      buildPrompt({
-        programList: Array.from(programIds),
-        source,
-      }),
-    ),
+  const res = await AIService.getInstance().analyzeArguments(
+    buildPrompt({
+      programList: Array.from(programIds),
+      source,
+    }),
   );
+
+  const regex = /{.*}/s;
+  const match = res.match(regex);
+  if (match) {
+    const jsonString = match[0];
+    const jsonData = JSON.parse(jsonString);
+    return jsonData;
+  } else {
+    console.log('No JSON found in response');
+    throw new Error('No JSON found in response');
+  }
 };
 
 const buildPrompt = ({ programList, source }: { programList: string[]; source: string }) => {
@@ -175,7 +183,7 @@ const buildPrompt = ({ programList, source }: { programList: string[]; source: s
   Return a message to warn user if it not safe to interact with these programs or website. If it's safe, you can return an short message that tell it's safe.
 
   IMPORTANT: 
-  - You should return with these format as raw JSON, dont return markdown or html.
+  - You should return with these format as raw JSON, DO NOT return markdown or html.
   {
     isSafe: boolean,
     message: string
