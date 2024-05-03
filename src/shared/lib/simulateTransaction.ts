@@ -4,6 +4,7 @@ import * as bs58 from 'bs58';
 
 export const simulateTransaction = async (encodedTx: string) => {
   const transaction = VersionedTransaction.deserialize(bs58.decode(encodedTx));
+  console.log('[utils] transaction', transaction);
   const connection = new Connection(ENV.SOLANA_RPC, 'confirmed');
 
   const result = await connection.simulateTransaction(transaction);
