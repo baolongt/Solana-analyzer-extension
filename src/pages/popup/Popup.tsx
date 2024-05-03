@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import '@pages/popup/Popup.css';
-import useStorage from '@src/shared/hooks/useStorage';
-import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { analyzeArguments } from './analyzeArguments';
 
 const Popup = () => {
-  const theme = useStorage(exampleThemeStorage);
-
   const [data, setData] = useState<{
     type: string;
     data: unknown;
+    source: string;
   } | null>();
 
   useEffect(() => {
@@ -53,19 +50,27 @@ const Popup = () => {
 
   const handleDecode = () => {
     console.log('data', data);
-    analyzeArguments(data.data);
+    analyzeArguments(data.data, data.source);
   };
 
   return (
-    <div
-      className="App"
-      style={{
-        backgroundColor: theme === 'light' ? '#fff' : '#000',
-      }}>
-      <h1>{data ? JSON.stringify(data) : 'No Data'}</h1>
-      <button onClick={() => handleReject()}>no</button>
-      <button onClick={() => handleApprove()}>yes</button>
-      <button onClick={() => handleDecode()}>decode</button>
+    <div className="content">
+      {/* <h1 className='data'>{data ? JSON.stringify(data) : 'No Data'}</h1> */}
+      <h1>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam fugiat ab architecto similique et optio ipsum,
+        repudiandae vitae molestias! At natus dignissimos molestiae, error eligendi vitae minus. Saepe, ducimus totam.
+      </h1>
+      <div className="button-container">
+        <button className="button no" onClick={() => handleReject()}>
+          No
+        </button>
+        <button className="button yes" onClick={() => handleApprove()}>
+          Yes
+        </button>
+        <button className="button decode" onClick={() => handleDecode()}>
+          Decode
+        </button>
+      </div>
     </div>
   );
 };

@@ -2,11 +2,12 @@ import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 
 refreshOnUpdate('pages/content/injected/event-listener');
 
-const sendEventToBackground = (type: string, data: unknown) => {
+const sendEventToBackground = (type: string, data: unknown, source: string) => {
   chrome.runtime.sendMessage(
     {
       type,
       data,
+      source,
     },
     function (response) {
       console.log('Received response:', response);
@@ -22,11 +23,11 @@ function initEventListener() {
       if (event.source != window) return;
 
       if (event.data.type && event.data.type == 'SIGN_AND_SEND_TRANSACTION') {
-        sendEventToBackground('SIGN_AND_SEND_TRANSACTION', event.data.data);
+        sendEventToBackground('SIGN_AND_SEND_TRANSACTION', event.data.data, event.data.source);
       }
 
       if (event.data.type && event.data.type == 'SIGN_TRANSACTION') {
-        sendEventToBackground('SIGN_TRANSACTION', event.data.data);
+        sendEventToBackground('SIGN_TRANSACTION', event.data.data, event.data.source);
       }
     },
     false,
