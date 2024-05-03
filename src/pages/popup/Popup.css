@@ -27,8 +27,8 @@
   }
 
   .button-container {
-    display: flex; /* Hiển thị các nút trên cùng một hàng */
-    gap: 10px; /* Khoảng cách giữa các nút */
+    display: flex;
+    gap: 10px; 
   }
   .button {
     width: 200px;
