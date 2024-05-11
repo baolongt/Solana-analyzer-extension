@@ -24,6 +24,8 @@
     "@google/generative-ai": "^0.9.0",
     "@project-serum/anchor": "^0.26.0",
     "@solana/web3.js": "^1.91.7",
+    "@solanafm/explorer-kit": "^1.1.0",
+    "@solanafm/explorer-kit-idls": "^1.1.1",
     "bn.js": "^5.2.1",
     "buffer": "^6.0.3",
     "construct-style-sheets-polyfill": "3.1.0",
@@ -72,6 +74,7 @@
     "tslib": "2.6.2",
     "typescript": "5.2.2",
     "vite": "5.0.12",
+    "vite-plugin-node-polyfills": "^0.21.0",
     "vitest": "^1.2.2",
     "ws": "8.14.2"
   },

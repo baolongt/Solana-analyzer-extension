@@ -2,6 +2,8 @@ import BN from 'bn.js';
 import { PublicKey, Connection, AddressLookupTableAccount, TransactionMessage, MessageV0 } from '@solana/web3.js';
 import { AIService } from './services/aiService';
 import { BlackListService, URLBlackListService } from './services/blacklistService';
+import { SolanaFMParser, checkIfInstructionParser, ParserType } from '@solanafm/explorer-kit';
+import { getProgramIdl } from '@solanafm/explorer-kit-idls';
 
 const connection = new Connection(
   'https://attentive-purple-sound.solana-mainnet.quiknode.pro/3e80be3037cae5bb76faa182aede706b608033f9/',
@@ -118,9 +120,34 @@ export const analyzeArguments = async (args: unknown, source: string) => {
         });
         console.log('decompiled', decompiledTrans);
 
-        decompiledTrans.instructions.forEach(instruction => {
-          programIds.add(convertRawToBase58(instruction.programId));
-        });
+        // decompiledTrans.instructions.forEach(instruction => {
+        //   programIds.add( convertRawToBase58(instruction.programId););
+        // });
+
+        for (const ix of decompiledTrans.instructions) {
+          console.log('ix', ix);
+          const base58IXData = ix.data.toString();
+          const programId = convertRawToBase58(ix.programId);
+          const SFMIdlItem = await getProgramIdl(programId);
+          const parser = new SolanaFMParser(SFMIdlItem, programId);
+          const instructionParser = parser.createParser(ParserType.INSTRUCTION);
+          if (instructionParser && checkIfInstructionParser(instructionParser)) {
+            // Parse the transaction
+            const decodedData = instructionParser.parseInstructions(base58IXData);
+            console.log('decodedData', decodedData);
+          }
+        }
+        // console.log('programIds', programIds);
+
+        // for (const programId of programIds) {
+        //   try {
+        //     const SFMIdlItem = await getProgramIdl(programId);
+        //     if (SFMIdlItem) {
+        //     }
+        //   } catch (e) {
+        //     console.log('error', e);
+        //   }
+        // }
       }
     }
   }
