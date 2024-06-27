@@ -21,9 +21,7 @@ window.solana.signAndSendTransaction = function (...args) {
         if (event.source != window) return;
 
         if (event.data.type && event.data.type == 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
-          console.log('Received approve', event.data.data);
           const result = await originalSignAndSendTransaction(...args);
-          console.log('Injecting code after signing transactions:', result);
           // Resolve the promise
           resolve(result);
         } else if (event.data.type && event.data.type == 'REJECT_SIGN_AND_SEND_TRANSACTION') {
@@ -62,9 +60,7 @@ window.solana.signTransaction = function (...args) {
         if (event.source != window) return;
 
         if (event.data.type && event.data.type == 'APPROVE_SIGN_TRANSACTION') {
-          console.log('Received approve', event.data.data);
           const result = await originalSignTransaction(...args);
-          console.log('Injecting code after signing transactions:', result);
           // Resolve the promise
           resolve(result);
         } else if (event.data.type && event.data.type == 'REJECT_SIGN_TRANSACTION') {

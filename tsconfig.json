@@ -25,11 +25,5 @@
       "virtual:reload-on-update-in-view": ["./src/global.d.ts"]
     }
   },
-  "include": [
-    "src",
-    "utils",
-    "vite.config.ts",
-    "node_modules/@types",
-    "src/pages/content/injected/scripts/solanaWrapper.js"
-  ]
+  "include": ["src", "utils", "vite.config.ts", "node_modules/@types"]
 }

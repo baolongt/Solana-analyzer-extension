@@ -15,8 +15,8 @@ const openPopup = () => {
   chrome.windows.create({
     url: chrome.runtime.getURL('/src/pages/popup/index.html'),
     type: 'popup',
-    width: 592,
-    height: 500,
+    width: 520,
+    height: 670,
     focused: true,
   });
 };
@@ -30,7 +30,7 @@ const storeDataAndEventType = (type: string, data: unknown, source: string) => {
         source,
       },
     },
-    function () {
+    async function () {
       openPopup();
     },
   );
@@ -54,7 +54,7 @@ const sendMessageToContentScripts = (type: string, data: unknown) => {
 };
 
 // Listen for messages from the content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   // Handle the message
   if (message.type === 'SIGN_AND_SEND_TRANSACTION') {
     //TODO: analyze the message and send a response back to the content script
@@ -85,4 +85,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   return true;
+});
+
+chrome.runtime.onConnect.addListener(function (port) {
+  console.log('port', port);
+  if (port.name === 'popup') {
+    port.onDisconnect.addListener(function () {
+      chrome.storage.local.get('event', function (d) {
+        console.log('event ', d);
+      });
+      // TODO get event and reject it
+      chrome.storage.local.set(
+        {
+          event: null,
+        },
+        () => {
+          console.log('cleared event');
+        },
+      );
+    });
+  }
 });
