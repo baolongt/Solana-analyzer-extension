@@ -26,6 +26,8 @@ window.solana.signAndSendTransaction = function (...args) {
           resolve(result);
         } else if (event.data.type && event.data.type == 'REJECT_SIGN_AND_SEND_TRANSACTION') {
           reject('No approve message received');
+        } else {
+          reject('No approve message received');
         }
       });
     } catch (e) {
@@ -64,6 +66,8 @@ window.solana.signTransaction = function (...args) {
           // Resolve the promise
           resolve(result);
         } else if (event.data.type && event.data.type == 'REJECT_SIGN_TRANSACTION') {
+          reject('No approve message received');
+        } else {
           reject('No approve message received');
         }
       });

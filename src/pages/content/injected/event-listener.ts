@@ -39,6 +39,7 @@ async function initEventListener() {
 
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.log({
+        message,
         sender,
         sendResponse,
       });
@@ -47,12 +48,18 @@ async function initEventListener() {
         window.postMessage(message, '*');
       }
       if (message.type === 'REJECT_SIGN_AND_SEND_TRANSACTION') {
+        console.log('REJECT_SIGN_AND_SEND_TRANSACTION');
         window.postMessage(message, '*');
       }
       if (message.type === 'APPROVE_SIGN_TRANSACTION') {
         window.postMessage(message, '*');
       }
       if (message.type === 'REJECT_SIGN_TRANSACTION') {
+        console.log('REJECT_SIGN_TRANSACTION');
+        window.postMessage(message, '*');
+      }
+      if (message.type === 'REJECT') {
+        console.log('reject');
         window.postMessage(message, '*');
       }
     });

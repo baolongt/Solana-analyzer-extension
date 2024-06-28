@@ -91,18 +91,19 @@ chrome.runtime.onConnect.addListener(function (port) {
   console.log('port', port);
   if (port.name === 'popup') {
     port.onDisconnect.addListener(function () {
-      chrome.storage.local.get('event', function (d) {
-        console.log('event ', d);
+      chrome.storage.local.get('event', async function (d) {
+        console.log('current event', d);
+        sendMessageToContentScripts('REJECT', {});
+
+        chrome.storage.local.set(
+          {
+            event: null,
+          },
+          () => {
+            console.log('cleared event');
+          },
+        );
       });
-      // TODO get event and reject it
-      chrome.storage.local.set(
-        {
-          event: null,
-        },
-        () => {
-          console.log('cleared event');
-        },
-      );
     });
   }
 });
