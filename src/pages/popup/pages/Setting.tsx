@@ -71,7 +71,7 @@ const SettingsPage = ({ handleChangePage }: { handleChangePage: (page: Page) => 
   }, [aiModel, token]);
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center space-y-4">
+    <div className="not-popup w-full h-screen flex flex-col items-center justify-center space-y-4">
       <div className="fixed top-0 left-0 w-full shadow">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <button
@@ -115,7 +115,7 @@ const SettingsPage = ({ handleChangePage }: { handleChangePage: (page: Page) => 
         <div className="mt-5 flex items-center justify-center">
           <button
             onClick={() => onSave()}
-            className="mt-4 px-4 py-2 bg-white text-zinc-950 text-xl text-white rounded shadow hover:bg-slate-100">
+            className="mt-4 px-4 py-2 bg-white text-zinc-950 text-base text-white rounded shadow hover:bg-slate-100">
             Save
           </button>
         </div>

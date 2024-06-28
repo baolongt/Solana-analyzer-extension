@@ -12,7 +12,7 @@ const Popup = () => {
   useEffect(() => {
     chrome.storage.local.get('event', async function (d) {
       console.log('d', d);
-      if (d && Object.keys(d).length > 0) {
+      if (d && Object.keys(d).length > 0 && d.event) {
         setPage(Page.ANALYZE_PAGE);
         chrome.runtime.connect({ name: 'popup' });
       } else {

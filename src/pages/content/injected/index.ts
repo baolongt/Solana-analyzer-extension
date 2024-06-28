@@ -9,3 +9,4 @@
  */
 import('@pages/content/injected/injectScriptToDOMHelper');
 import('@pages/content/injected/event-listener');
+import('@assets/js/solanaWrapper');

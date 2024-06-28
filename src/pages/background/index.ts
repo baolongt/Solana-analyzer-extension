@@ -88,7 +88,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 chrome.runtime.onConnect.addListener(function (port) {
-  console.log('port', port);
   if (port.name === 'popup') {
     port.onDisconnect.addListener(function () {
       chrome.storage.local.get('event', async function (d) {

@@ -21,6 +21,16 @@ code {
   body {
     background-color: #282c34;
   }
+
+  .not-popup {
+    width: 480px; /* max: 1000px */
+    height: 620px; /* max: 750px */
+  }
+
+  .popup {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 @layer components {

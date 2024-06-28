@@ -42,7 +42,7 @@ const MainPage = ({ handleChangePage }: { handleChangePage: (page: Page) => void
   };
 
   return (
-    <div className="w-screen flex items-center justify-center">
+    <div className="not-popup w-screen flex items-center justify-center">
       <div className="fixed top-0 left-0 w-full shadow">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <button
@@ -65,42 +65,51 @@ const MainPage = ({ handleChangePage }: { handleChangePage: (page: Page) => void
           </button>
         </div>
       </div>
-      <div className="mt-48 flex items-center justify-center">
-        <button
-          onClick={() => handleStop()}
-          className="mt-4 px-4 py-2 bg-white text-zinc-950 text-xl text-white rounded shadow hover:bg-slate-100">
-          {isStop ? (
-            <div className="flex">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6 mt-1">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
-                />
-              </svg>
-              Start
-            </div>
-          ) : (
-            <div className="flex">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6 mt-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-              </svg>
-              Stop
-            </div>
-          )}
-        </button>
+      <div className="flex flex-col">
+        <div className="mt-30 w-full flex items-center justify-center">
+          <button
+            onClick={() => handleStop()}
+            className="mt-4 px-4 py-2 bg-white text-zinc-950 text-base text-white rounded shadow hover:bg-slate-100">
+            {isStop ? (
+              <div className="flex">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                  />
+                </svg>
+                Start
+              </div>
+            ) : (
+              <div className="flex">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                </svg>
+                Stop
+              </div>
+            )}
+          </button>
+        </div>
+        <div className="fixed inset-x-0 bottom-0 p-4 bg-transparent">
+          <div className="w-full">
+            <button className="w-full mt-4 px-4 py-2 bg-white text-zinc-950 text-base text-white rounded shadow hover:bg-slate-100">
+              Report scam
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

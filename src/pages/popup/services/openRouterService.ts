@@ -1,4 +1,4 @@
-export class openRouterService {
+export class OpenRouterService {
   private token = '';
   private model = 'openai/gpt-3.5-turbo';
   constructor() {
@@ -8,10 +8,10 @@ export class openRouterService {
     });
   }
 
-  public async analyzeArguments(args: string) {
-    console.log('args', args);
+  public async analyzeArguments(prompt: string) {
+    console.log('prompt', prompt);
 
-    fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -22,5 +22,14 @@ export class openRouterService {
         messages: [{ role: 'user', content: 'What is the meaning of life?' }],
       }),
     });
+
+    const data = await res.json();
+    console.log('data', data);
+
+    return data;
+  }
+
+  public static getInstance() {
+    return new OpenRouterService();
   }
 }

@@ -57,16 +57,16 @@ const Analyze = () => {
   // };
 
   return (
-    <div className="flex w-full flex-col justify-between min-h-screen py-12">
+    <div className="popup flex w-full flex-col justify-between min-h-screen py-12">
       <div></div> {/* This empty div will take up all available space, pushing the buttons to the bottom */}
-      <div className="flex justify-between w-full ml-3 px-10">
+      <div className="flex justify-between w-full ml-3 px-10 gap-4">
         <button
           className="w-4/12 mt-4 px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
           onClick={() => handleReject()}>
           Reject
         </button>
         <button
-          className="w-7/12 mt-4 px-4 py-2 bg-green-500 text-white text-base text-white rounded shadow hover:bg-green-700"
+          className="w-8/12 mt-4 px-4 py-2 bg-green-500 text-white text-base text-white rounded shadow hover:bg-green-700"
           onClick={() => handleApprove()}>
           Proceed
         </button>

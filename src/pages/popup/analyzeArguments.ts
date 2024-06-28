@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import {
   PublicKey,
   Connection,
@@ -7,8 +6,9 @@ import {
   MessageV0,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { convertRawToBase58 } from './utils';
+import { buildPrompt, convertRawToBase58 } from './utils';
 import { SolFMParser } from './parser';
+import { OpenRouterService } from './services/openRouterService';
 
 const connection = new Connection(
   'https://attentive-purple-sound.solana-mainnet.quiknode.pro/3e80be3037cae5bb76faa182aede706b608033f9/',
@@ -19,8 +19,10 @@ const connection = new Connection(
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const analyzeArguments = async (args: unknown, source: string) => {
   if (!args) throw new Error('no arguments');
+
+  console.log('args', args);
   const ixParser = new SolFMParser();
-  const programIds = new Set<string>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (Array.isArray(args)) {
     for (const arg of args) {
       if (arg === null) continue;
@@ -75,9 +77,10 @@ export const analyzeArguments = async (args: unknown, source: string) => {
           const decompiledTrans = TransactionMessage.decompile(messageV0, {
             addressLookupTableAccounts: ATLs,
           });
+          console.log('decompiledTrans', decompiledTrans);
 
           const parsedIx = await ixParser.parseTransaction(decompiledTrans);
-          console.table('table', parsedIx);
+          console.log('table', parsedIx);
         } else {
           return {
             isSafe: false,
@@ -98,19 +101,15 @@ export const analyzeArguments = async (args: unknown, source: string) => {
     }
   }
 
-  return {
-    isSafe: true,
-    message: 'All programs are safe',
-  };
-
   // console.log('programIds', programIds);
 
-  // const res = await AIService.getInstance().analyzeArguments(
-  //   buildPrompt({
-  //     programList: Array.from(programIds),
-  //     source,
-  //   }),
-  // );
+  const res = await OpenRouterService.getInstance().analyzeArguments(
+    buildPrompt({
+      programList: [],
+      blacklistPrograms: [],
+      source,
+    }),
+  );
 
   // const regex = /{.*}/s;
   // const match = res.match(regex);
