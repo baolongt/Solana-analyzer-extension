@@ -9,6 +9,7 @@ import {
 import { buildPrompt, convertRawToBase58 } from './utils';
 import { SolFMParser } from './parser';
 import { OpenRouterService } from './services/openRouterService';
+import { Analyze } from './services/analyze';
 
 const connection = new Connection(
   'https://attentive-purple-sound.solana-mainnet.quiknode.pro/3e80be3037cae5bb76faa182aede706b608033f9/',
@@ -47,8 +48,6 @@ export const analyzeArguments = async (args: unknown, source: string) => {
       }
       // versioned transaction
       if (arg.message) {
-        console.log('arg.message', arg.message);
-
         if ('compiledInstructions' in arg.message) {
           const parsedMessage = {
             ...arg.message,
@@ -72,6 +71,10 @@ export const analyzeArguments = async (args: unknown, source: string) => {
             }
           }
 
+          for (const alt of ATLs) {
+            console.log('alt', alt.key.toBase58());
+          }
+
           const messageV0 = new MessageV0(parsedMessage);
 
           const decompiledTrans = TransactionMessage.decompile(messageV0, {
@@ -81,6 +84,23 @@ export const analyzeArguments = async (args: unknown, source: string) => {
 
           const parsedIx = await ixParser.parseTransaction(decompiledTrans);
           console.log('table', parsedIx);
+
+          const enrichProgramList = await Analyze.getInstance().enrichWithPublicData(parsedIx);
+          console.log('enrichProgramList', enrichProgramList);
+
+          const res = await OpenRouterService.getInstance().analyzeArguments(
+            buildPrompt({
+              programList: enrichProgramList,
+              blacklistPrograms: [],
+              source,
+            }),
+          );
+
+          const resJsonRaw = res.choices[0].message.content;
+          const resJSON = JSON.parse(resJsonRaw);
+          console.log('res', resJSON);
+
+          return resJSON;
         } else {
           return {
             isSafe: false,
@@ -102,14 +122,6 @@ export const analyzeArguments = async (args: unknown, source: string) => {
   }
 
   // console.log('programIds', programIds);
-
-  const res = await OpenRouterService.getInstance().analyzeArguments(
-    buildPrompt({
-      programList: [],
-      blacklistPrograms: [],
-      source,
-    }),
-  );
 
   // const regex = /{.*}/s;
   // const match = res.match(regex);

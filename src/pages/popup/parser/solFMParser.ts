@@ -4,7 +4,7 @@ import { getProgramIdl } from '@solanafm/explorer-kit-idls';
 import bs58 from 'bs58';
 import { convertRawToBase58 } from '../utils';
 
-type SolFmParserOutput = {
+export type SolFmParserOutput = {
   programId: string;
   data: ParserOutput;
 };

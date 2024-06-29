@@ -1,3 +1,28 @@
+type Choice = {
+  index: number;
+  message: {
+    role: string;
+    content: string;
+  };
+  finish_reason: string;
+};
+
+type Usage = {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+};
+
+type ResponseData = {
+  id: string;
+  model: string;
+  object: string;
+  created: number;
+  choices: Choice[];
+  system_fingerprint: null | string;
+  usage: Usage;
+};
+
 export class OpenRouterService {
   private token = '';
   private model = 'openai/gpt-3.5-turbo';
@@ -19,12 +44,11 @@ export class OpenRouterService {
       },
       body: JSON.stringify({
         model: this.model,
-        messages: [{ role: 'user', content: 'What is the meaning of life?' }],
+        messages: [{ role: 'assistant', content: prompt }],
       }),
     });
 
-    const data = await res.json();
-    console.log('data', data);
+    const data: ResponseData = await res.json();
 
     return data;
   }

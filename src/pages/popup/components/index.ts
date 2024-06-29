@@ -1,1 +1,1 @@
-export * from './Analyze';
+export * from './Loading';

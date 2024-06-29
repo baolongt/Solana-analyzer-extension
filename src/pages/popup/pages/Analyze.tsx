@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { analyzeArguments } from '../analyzeArguments';
+import { Loading } from '../components';
 
 const Analyze = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_response, setResponse] = useState<{
+  const [response, setResponse] = useState<{
     isSafe?: boolean;
     message: string;
   }>(null);
@@ -58,7 +59,16 @@ const Analyze = () => {
 
   return (
     <div className="popup flex w-full flex-col justify-between min-h-screen py-12">
-      <div></div> {/* This empty div will take up all available space, pushing the buttons to the bottom */}
+      <div className="flex items-center justify-center mx-auto text-white px-10 ml-3 text-base">
+        {response ? (
+          response.message
+        ) : (
+          <div className="flex items-center justify-center  ">
+            <Loading />
+          </div>
+        )}
+      </div>
+      {/* This empty div will take up all available space, pushing the buttons to the bottom */}
       <div className="flex justify-between w-full ml-3 px-10 gap-4">
         <button
           className="w-4/12 mt-4 px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
