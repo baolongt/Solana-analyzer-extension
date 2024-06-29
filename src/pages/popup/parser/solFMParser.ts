@@ -13,18 +13,26 @@ export class SolFMParser {
   constructor() {}
 
   public async parseIx(ix: TransactionInstruction) {
-    const base58IXData = bs58.encode(Buffer.from(ix.data));
-    const programId = convertRawToBase58(ix.programId);
-    const SFMIdlItem = await getProgramIdl(programId);
-    const parser = new SolanaFMParser(SFMIdlItem, programId);
-    const instructionParser = parser.createParser(ParserType.INSTRUCTION);
-    if (instructionParser && checkIfInstructionParser(instructionParser)) {
-      // Parse the transaction
-      const decodedData = instructionParser.parseInstructions(base58IXData);
-      console.log('decodedData', decodedData);
+    let programId = '';
+    try {
+      const base58IXData = bs58.encode(Buffer.from(ix.data));
+      programId = convertRawToBase58(ix.programId);
+      const SFMIdlItem = await getProgramIdl(programId);
+      const parser = new SolanaFMParser(SFMIdlItem, programId);
+      const instructionParser = parser.createParser(ParserType.INSTRUCTION);
+      if (instructionParser && checkIfInstructionParser(instructionParser)) {
+        // Parse the transaction
+        const decodedData = instructionParser.parseInstructions(base58IXData);
+        return {
+          programId,
+          data: decodedData,
+        };
+      }
+    } catch (error) {
+      console.error('Error parsing instruction', error);
       return {
         programId,
-        data: decodedData,
+        data: null,
       };
     }
   }

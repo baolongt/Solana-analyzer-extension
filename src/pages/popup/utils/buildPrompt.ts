@@ -1,16 +1,22 @@
-type ProgramList = {
-  programList: {
+import { PublicKey } from '@solana/web3.js';
+
+type BuildPromptInput = {
+  intructionList: {
+    data: Buffer;
+    keys: {
+      pubkey: PublicKey;
+      isSigner: boolean;
+      isWritable: boolean;
+    }[];
     programId: string;
-    metadata: Record<string, string>;
-  }[];
-  blacklistPrograms: {
-    programId: string;
-    metadata: Record<string, string>;
+    name: string;
+    enrichProgramDetail: Record<string, unknown> | null;
+    isBlackListed: boolean;
   }[];
   source: string;
 };
 
-export const buildPrompt = ({ programList, blacklistPrograms, source }: ProgramList) => {
+export const buildPrompt = ({ intructionList, source }: BuildPromptInput) => {
   let basePrompt = `
   User is trying to interact with a Solana Dapp website.
 
@@ -32,40 +38,46 @@ export const buildPrompt = ({ programList, blacklistPrograms, source }: ProgramL
   - If there is a metadata provide for programId, you can use it as source of information.
   - The response should be easy to understand for the user.
   - Don't show the plain programId, if it have a metadata, use it like name or description for meaningful
-  - do not show url of the website
-  - if you know the name of the website or it in the metadata
+  - Do not show url of the website
+  - If you know the name of the website or it in the metadata
   - Medata is the best source of information, if it is not available, just make all you can do.
+  - just plain text
 
   WHAT SHOULD NOT RETURN:
   - computed unit of the transaction.
+  - include markdown syntax like ** or something else.
 
   IMPORTANT: 
-  - You should return with these format as raw JSON, DO NOT return markdown or html.
-  {
-    isSafe: boolean,
-    message: string
-  }
-  - If blacklist contains one program id you should return isSafe = false.
+  - If blacklist contains one or more program id you should warn the user about the blacklist programs.
+  - Don't show the plain programId, if it have a metadata, use it like name or description for meaningful
   `;
 
   basePrompt = basePrompt.replace('{source}', source);
-  const programsList = programList.map(program => {
-    if (program.metadata) {
-      return `- Program ID: ${program.programId}, Metadata: ${JSON.stringify(program.metadata)}`;
-    }
-    return `- Program ID: ${program.programId}`;
-  });
-  basePrompt = basePrompt.replace('{programsList}', programsList.join('\n\t'));
 
-  const blacklistProgramList = blacklistPrograms.map(program => {
-    if (program.metadata) {
-      return `- Program ID: ${program.programId}, Metadata: ${JSON.stringify(program.metadata)}`;
-    }
-    return `- Program ID: ${program.programId}`;
-  });
-  basePrompt = basePrompt
-    .replace('{blacklistProgramsNumber}', blacklistProgramList.length.toString())
-    .replace('{blacklistPrograms}', blacklistProgramList.join('\n\t'));
+  const programsList = intructionList
+    .map((instruction, index) => {
+      return `
+    Intruction ${index + 1}:
+    \tProgram name: ${instruction.name}
+    \tProgram ID: ${instruction.programId}
+    \tMetadata: ${JSON.stringify(instruction.enrichProgramDetail)}
+    `;
+    })
+    .join('\n\t');
+
+  basePrompt = basePrompt.replace('{programsList}', programsList);
+
+  const blacklistPrograms = intructionList
+    .filter(instruction => instruction.isBlackListed)
+    .map(instruction => {
+      return `
+    Program ID: ${instruction.programId}
+    `;
+    })
+    .join('\n\t');
+
+  basePrompt = basePrompt.replace('{blacklistProgramsNumber}', blacklistPrograms.length.toString());
+  basePrompt = basePrompt.replace('{blacklistPrograms}', blacklistPrograms);
 
   console.log('basePrompt', basePrompt);
   return basePrompt;

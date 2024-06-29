@@ -34,8 +34,6 @@ export class OpenRouterService {
   }
 
   public async analyzeArguments(prompt: string) {
-    console.log('prompt', prompt);
-
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -44,7 +42,12 @@ export class OpenRouterService {
       },
       body: JSON.stringify({
         model: this.model,
-        messages: [{ role: 'assistant', content: prompt }],
+        messages: [
+          {
+            role: 'system',
+            content: prompt,
+          },
+        ],
       }),
     });
 

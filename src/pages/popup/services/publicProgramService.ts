@@ -35,7 +35,7 @@ export class PublicProgramService {
   public async getBlacklistedPrograms() {
     // TODO : add the correct endpoint
 
-    const res = await fetch('', {
+    const res = await fetch('https://raw.githubusercontent.com/baolongt/solana-scam-tracking/main/index.json', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

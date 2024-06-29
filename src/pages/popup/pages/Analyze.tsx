@@ -3,13 +3,28 @@ import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { analyzeArguments } from '../analyzeArguments';
 import { Loading } from '../components';
+import { PublicKey } from '@solana/web3.js';
+import Instruction from '../components/Intruction';
+import { OpenRouterService } from '../services/openRouterService';
+import { buildPrompt } from '../utils';
 
 const Analyze = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [response, setResponse] = useState<{
-    isSafe?: boolean;
-    message: string;
-  }>(null);
+  const [intructions, setInstructions] = useState<
+    {
+      data: Buffer;
+      keys: {
+        pubkey: PublicKey;
+        isSigner: boolean;
+        isWritable: boolean;
+      }[];
+      programId: string;
+      name: string;
+      enrichProgramDetail: Record<string, unknown> | null;
+      isBlackListed: boolean;
+    }[]
+  >([]);
+  const [AIResponse, setAIResponse] = useState<string | null>();
 
   const [data, setData] = useState<{
     type: string;
@@ -22,8 +37,10 @@ const Analyze = () => {
       if (d) {
         setData(d.event);
         const { data, source } = d.event;
-        const res = await analyzeArguments(data, source);
-        setResponse(res);
+        const intructions = await analyzeArguments(data, source);
+
+        console.log('intructions', intructions);
+        setInstructions(intructions);
       }
     });
   }, []);
@@ -53,30 +70,68 @@ const Analyze = () => {
     );
   };
 
+  const handleAnalyze = async () => {
+    chrome.storage.local.get('event', async function (d) {
+      if (d) {
+        const { source } = d.event;
+
+        const res = await OpenRouterService.getInstance().analyzeArguments(
+          buildPrompt({
+            intructionList: intructions,
+            source,
+          }),
+        );
+
+        setAIResponse(res.choices[0].message.content);
+      }
+    });
+  };
+
   // const handleDecode = () => {
   //   analyzeArguments(data.data, data.source);
   // };
 
   return (
     <div className="popup flex w-full flex-col justify-between min-h-screen py-12">
-      <div className="flex items-center justify-center mx-auto text-white px-10 ml-3 text-base">
-        {response ? (
-          response.message
-        ) : (
-          <div className="flex items-center justify-center  ">
+      <div className="popup-intruction flex items-center justify-center text-white px-10 ml-3 text-base">
+        <div className="mx-auto px-1">
+          {intructions.length > 0 ? (
+            <>
+              {intructions.map((instruction, index) => (
+                <Instruction key={index} instruction={instruction} index={index} />
+              ))}
+            </>
+          ) : (
             <Loading />
-          </div>
-        )}
+          )}
+        </div>
       </div>
       {/* This empty div will take up all available space, pushing the buttons to the bottom */}
-      <div className="flex justify-between w-full ml-3 px-10 gap-4">
+
+      <div className="mt-2 flex flex-col w-full ml-3 px-10 gap-4">
+        {AIResponse ? (
+          <div className="flex flex-col border border-white items-center justify-center text-white px-10 ml-3 text-base text-pretty">
+            <div className="mx-auto px-1">
+              <div className="text-white text-base">{AIResponse}</div>
+            </div>
+          </div>
+        ) : (
+          <div></div>
+        )}
         <button
-          className="w-4/12 mt-4 px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
+          className="w-full px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
+          onClick={() => handleAnalyze()}>
+          Analyze
+        </button>
+      </div>
+      <div className="mt-2 flex justify-between w-full ml-3 px-10 gap-4">
+        <button
+          className="w-4/12 px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
           onClick={() => handleReject()}>
           Reject
         </button>
         <button
-          className="w-8/12 mt-4 px-4 py-2 bg-green-500 text-white text-base text-white rounded shadow hover:bg-green-700"
+          className="w-8/12 px-4 py-2 bg-green-500 text-white text-base text-white rounded shadow hover:bg-green-700"
           onClick={() => handleApprove()}>
           Proceed
         </button>

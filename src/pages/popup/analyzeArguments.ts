@@ -1,15 +1,7 @@
-import {
-  PublicKey,
-  Connection,
-  AddressLookupTableAccount,
-  TransactionMessage,
-  MessageV0,
-  TransactionInstruction,
-} from '@solana/web3.js';
-import { buildPrompt, convertRawToBase58 } from './utils';
+import { PublicKey, Connection, AddressLookupTableAccount, TransactionMessage, MessageV0 } from '@solana/web3.js';
+import { convertRawToBase58, parseAccount } from './utils';
 import { SolFMParser } from './parser';
-import { OpenRouterService } from './services/openRouterService';
-import { Analyze } from './services/analyze';
+import { PublicProgramService } from './services/publicProgramService';
 
 const connection = new Connection(
   'https://attentive-purple-sound.solana-mainnet.quiknode.pro/3e80be3037cae5bb76faa182aede706b608033f9/',
@@ -36,15 +28,7 @@ export const analyzeArguments = async (args: unknown, source: string) => {
       }
       // legacy transaction
       if (arg.instructions) {
-        console.log('arg', arg);
-        const arr = [];
-
-        for (const ix of arg.instructions) {
-          const parsedIX = await ixParser.parseIx(ix as TransactionInstruction);
-          arr.push(parsedIX);
-        }
-
-        console.table(arr);
+        return arg.instructions;
       }
       // versioned transaction
       if (arg.message) {
@@ -71,66 +55,42 @@ export const analyzeArguments = async (args: unknown, source: string) => {
             }
           }
 
-          for (const alt of ATLs) {
-            console.log('alt', alt.key.toBase58());
-          }
-
           const messageV0 = new MessageV0(parsedMessage);
 
           const decompiledTrans = TransactionMessage.decompile(messageV0, {
             addressLookupTableAccounts: ATLs,
           });
-          console.log('decompiledTrans', decompiledTrans);
 
           const parsedIx = await ixParser.parseTransaction(decompiledTrans);
-          console.log('table', parsedIx);
+          console.log('parsedIx', parsedIx);
 
-          const enrichProgramList = await Analyze.getInstance().enrichWithPublicData(parsedIx);
-          console.log('enrichProgramList', enrichProgramList);
-
-          const res = await OpenRouterService.getInstance().analyzeArguments(
-            buildPrompt({
-              programList: enrichProgramList,
-              blacklistPrograms: [],
-              source,
+          const enrichProgramList = await Promise.all(
+            parsedIx.map(ix => {
+              return PublicProgramService.getInstance().getProgramDetails(ix.programId);
             }),
           );
 
-          const resJsonRaw = res.choices[0].message.content;
-          const resJSON = JSON.parse(resJsonRaw);
-          console.log('res', resJSON);
+          const transaction = await Promise.all(
+            decompiledTrans.instructions.map(async (ix, index) => {
+              const isBlackListed = await PublicProgramService.getInstance().isProgramBlacklisted(
+                parsedIx[index].programId,
+              );
+              return {
+                data: Buffer.from(ix.data),
+                keys: ix.keys.map(key => parseAccount(key)),
+                programId: parsedIx[index].programId,
+                enrichProgramDetail: enrichProgramList[index],
+                isBlackListed: isBlackListed,
+                name: parsedIx[index].data ? parsedIx[index].data.name : 'Unknown',
+              };
+            }),
+          );
 
-          return resJSON;
-        } else {
-          return {
-            isSafe: false,
-            message: 'All programs are safe',
-          };
+          return transaction;
+
+          // return decompiledTrans.instructions;
         }
-
-        // for (const programId of programIds) {
-        //   try {
-        //     const SFMIdlItem = await getProgramIdl(programId);
-        //     if (SFMIdlItem) {
-        //     }
-        //   } catch (e) {
-        //     console.log('error', e);
-        //   }
-        // }
       }
     }
   }
-
-  // console.log('programIds', programIds);
-
-  // const regex = /{.*}/s;
-  // const match = res.match(regex);
-  // if (match) {
-  //   const jsonString = match[0];
-  //   const jsonData = JSON.parse(jsonString);
-  //   return jsonData;
-  // } else {
-  //   console.log('No JSON found in response');
-  //   throw new Error('No JSON found in response');
-  // }
 };
