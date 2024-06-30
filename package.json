@@ -22,6 +22,7 @@
   "type": "module",
   "dependencies": {
     "@debridge-finance/solana-transaction-parser": "^2.0.1",
+
     "@google/generative-ai": "^0.9.0",
     "@project-serum/anchor": "^0.26.0",
     "@solana/web3.js": "^1.91.7",

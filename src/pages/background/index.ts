@@ -17,6 +17,7 @@ const openPopup = () => {
     type: 'popup',
     width: 520,
     height: 670,
+
     focused: true,
   });
 };

@@ -44,6 +44,7 @@ async function initEventListener() {
         sendResponse,
       });
 
+
       if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
         window.postMessage(message, '*');
       }

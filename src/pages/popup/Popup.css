@@ -8,8 +8,8 @@
     align-items: center;
     justify-content: center;
     /* height: 100vh; */
+
   }
-}
 
 @layer popup {
   .content {
@@ -49,6 +49,7 @@
     background-color: #f62682;
     color: white;
   }
+
 }
 
 @keyframes App-logo-spin {
