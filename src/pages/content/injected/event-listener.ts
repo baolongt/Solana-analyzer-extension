@@ -15,42 +15,56 @@ const sendEventToBackground = (type: string, data: unknown, source: string) => {
   );
 };
 
-function initEventListener() {
-  window.addEventListener(
-    'message',
-    function (event) {
-      // We only accept messages from ourselves
-      if (event.source != window) return;
+async function initEventListener() {
+  const settingsObj = await chrome.storage.sync.get('settings');
+  console.log('in content script', settingsObj);
 
-      if (event.data.type && event.data.type == 'SIGN_AND_SEND_TRANSACTION') {
-        sendEventToBackground('SIGN_AND_SEND_TRANSACTION', event.data.data, event.data.source);
+  if (settingsObj.settings && !settingsObj.settings.isStop) {
+    window.addEventListener(
+      'message',
+      function (event) {
+        // We only accept messages from ourselves
+        if (event.source != window) return;
+
+        if (event.data.type && event.data.type == 'SIGN_AND_SEND_TRANSACTION') {
+          sendEventToBackground('SIGN_AND_SEND_TRANSACTION', event.data.data, event.data.source);
+        }
+
+        if (event.data.type && event.data.type == 'SIGN_TRANSACTION') {
+          sendEventToBackground('SIGN_TRANSACTION', event.data.data, event.data.source);
+        }
+      },
+      false,
+    );
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      console.log({
+        message,
+        sender,
+        sendResponse,
+      });
+
+
+      if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
+        window.postMessage(message, '*');
       }
-
-      if (event.data.type && event.data.type == 'SIGN_TRANSACTION') {
-        sendEventToBackground('SIGN_TRANSACTION', event.data.data, event.data.source);
+      if (message.type === 'REJECT_SIGN_AND_SEND_TRANSACTION') {
+        console.log('REJECT_SIGN_AND_SEND_TRANSACTION');
+        window.postMessage(message, '*');
       }
-    },
-    false,
-  );
-
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
-      window.postMessage(message, '*');
-      sendResponse({ status: 'Message forwarded to DOM' });
-    }
-    if (message.type === 'REJECT_SIGN_AND_SEND_TRANSACTION') {
-      window.postMessage(message, '*');
-      sendResponse({ status: 'Message forwarded to DOM' });
-    }
-    if (message.type === 'APPROVE_SIGN_TRANSACTION') {
-      window.postMessage(message, '*');
-      sendResponse({ status: 'Message forwarded to DOM' });
-    }
-    if (message.type === 'REJECT_SIGN_TRANSACTION') {
-      window.postMessage(message, '*');
-      sendResponse({ status: 'Message forwarded to DOM' });
-    }
-  });
+      if (message.type === 'APPROVE_SIGN_TRANSACTION') {
+        window.postMessage(message, '*');
+      }
+      if (message.type === 'REJECT_SIGN_TRANSACTION') {
+        console.log('REJECT_SIGN_TRANSACTION');
+        window.postMessage(message, '*');
+      }
+      if (message.type === 'REJECT') {
+        console.log('reject');
+        window.postMessage(message, '*');
+      }
+    });
+  }
 }
 
 void initEventListener();

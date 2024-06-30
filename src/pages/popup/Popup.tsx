@@ -1,78 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import '@pages/popup/Popup.css';
+
+import React, { useEffect } from 'react';
+
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
-import { analyzeArguments } from './analyzeArguments';
+import MainPage from './pages/Main';
+import SettingsPage from './pages/Setting';
+import { Page } from './types/page';
+import Analyze from './pages/Analyze';
 
 const Popup = () => {
-  const [data, setData] = useState<{
-    type: string;
-    data: unknown;
-    source: string;
-  } | null>();
+  const [page, setPage] = React.useState<Page>(Page.MAIN_PAGE);
+
 
   useEffect(() => {
-    chrome.storage.local.get('event', function (data) {
-      console.log('Data retrieved from Chrome storage: ', data);
-
-      if (data) {
-        setData(data.event);
-        console.log('Data retrieved from Chrome storage: ', data);
+    chrome.storage.local.get('event', async function (d) {
+      console.log('d', d);
+      if (d && Object.keys(d).length > 0 && d.event) {
+        setPage(Page.ANALYZE_PAGE);
+        chrome.runtime.connect({ name: 'popup' });
+      } else {
+        setPage(Page.MAIN_PAGE);
       }
     });
   }, []);
 
-  const handleApprove = () => {
-    chrome.runtime.sendMessage(
-      {
-        type: 'APPROVE_' + data.type,
-        data: data.data,
-      },
-      function (response) {
-        console.log('Received response:', response);
-        window.close();
-      },
-    );
+  const handleChangePage = (page: Page) => {
+    setPage(page);
   };
 
-  const handleReject = () => {
-    chrome.runtime.sendMessage(
-      {
-        type: 'REJECT_' + data.type,
-        data: data.data,
-      },
-      function (response) {
-        console.log('Received response:', response);
-        window.close();
-      },
-    );
-  };
+  switch (page) {
+    case Page.MAIN_PAGE:
+      return <MainPage handleChangePage={handleChangePage} />;
+    case Page.SETTING_PAGE:
+      return <SettingsPage handleChangePage={handleChangePage} />;
+    case Page.ANALYZE_PAGE:
+      return <Analyze />;
+  }
 
-  const handleDecode = () => {
-    console.log('data', data);
-    analyzeArguments(data.data, data.source);
-  };
-
-  return (
-    <div className="content">
-      {/* <h1 className='data'>{data ? JSON.stringify(data) : 'No Data'}</h1> */}
-      <h1>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam fugiat ab architecto similique et optio ipsum,
-        repudiandae vitae molestias! At natus dignissimos molestiae, error eligendi vitae minus. Saepe, ducimus totam.
-      </h1>
-      <div className="button-container">
-        <button className="button no" onClick={() => handleReject()}>
-          No
-        </button>
-        <button className="button yes" onClick={() => handleApprove()}>
-          Yes
-        </button>
-        <button className="button decode" onClick={() => handleDecode()}>
-          Decode
-        </button>
-      </div>
-    </div>
-  );
 };
 
 export default withErrorBoundary(withSuspense(Popup, <div> Loading ... </div>), <div> Error Occur </div>);

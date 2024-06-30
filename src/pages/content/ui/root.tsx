@@ -11,7 +11,6 @@ root.id = 'solana-extension-root';
 document.body.append(root);
 
 const rootIntoShadow = document.createElement('div');
-rootIntoShadow.id = 'shadow-root';
 
 const shadowRoot = root.attachShadow({ mode: 'open' });
 shadowRoot.appendChild(rootIntoShadow);
