@@ -41,13 +41,13 @@ export const buildPrompt = ({ intructionList, source }: BuildPromptInput) => {
   - Do not show url of the website
   - If you know the name of the website or it in the metadata
   - Medata is the best source of information, if it is not available, just make all you can do.
-  - just plain text
 
   WHAT SHOULD NOT RETURN:
   - computed unit of the transaction.
   - include markdown syntax like ** or something else.
 
   IMPORTANT: 
+  - Should response with markdown syntax
   - If blacklist contains one or more program id you should warn the user about the blacklist programs.
   - Don't show the plain programId, if it have a metadata, use it like name or description for meaningful
   `;
@@ -58,7 +58,7 @@ export const buildPrompt = ({ intructionList, source }: BuildPromptInput) => {
     .map((instruction, index) => {
       return `
     Intruction ${index + 1}:
-    \tProgram name: ${instruction.name}
+    \tInstruction name: ${instruction.name}
     \tProgram ID: ${instruction.programId}
     \tMetadata: ${JSON.stringify(instruction.enrichProgramDetail)}
     `;

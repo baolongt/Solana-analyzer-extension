@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { analyzeArguments } from '../analyzeArguments';
-import { Loading } from '../components';
+import { AIResponseText, Loading } from '../components';
 import { PublicKey } from '@solana/web3.js';
 import Instruction from '../components/Intruction';
-import { OpenRouterService } from '../services/openRouterService';
+import { OpenRouterService } from '../services/openAiService';
 import { buildPrompt } from '../utils';
 
 const Analyze = () => {
@@ -24,7 +24,7 @@ const Analyze = () => {
       isBlackListed: boolean;
     }[]
   >([]);
-  const [AIResponse, setAIResponse] = useState<string | null>();
+  const [analyzeResponse, setAnalyzeResponse] = useState<string | null>('');
 
   const [data, setData] = useState<{
     type: string;
@@ -75,14 +75,18 @@ const Analyze = () => {
       if (d) {
         const { source } = d.event;
 
-        const res = await OpenRouterService.getInstance().analyzeArguments(
+        let res = '';
+
+        await OpenRouterService.getInstance().analyzeArguments(
           buildPrompt({
             intructionList: intructions,
             source,
           }),
+          chunk => {
+            res += chunk;
+            setAnalyzeResponse(res);
+          },
         );
-
-        setAIResponse(res.choices[0].message.content);
       }
     });
   };
@@ -109,10 +113,12 @@ const Analyze = () => {
       {/* This empty div will take up all available space, pushing the buttons to the bottom */}
 
       <div className="mt-2 flex flex-col w-full ml-3 px-10 gap-4">
-        {AIResponse ? (
-          <div className="flex flex-col border border-white items-center justify-center text-white px-10 ml-3 text-base text-pretty">
+        {analyzeResponse ? (
+          <div className="flex justify-start text-white text-base text-pretty">
             <div className="mx-auto px-1">
-              <div className="text-white text-base">{AIResponse}</div>
+              <div className="text-white text-base">
+                <AIResponseText content={analyzeResponse} />
+              </div>
             </div>
           </div>
         ) : (
