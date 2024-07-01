@@ -91,28 +91,52 @@ const Analyze = () => {
     });
   };
 
-  // const handleDecode = () => {
-  //   analyzeArguments(data.data, data.source);
-  // };
+  const onClickAccordion = () => {};
 
   return (
-    <div className="popup flex w-full flex-col justify-between min-h-screen py-12">
-      <div className="popup-intruction flex items-center justify-center text-white px-10 ml-3 text-base">
-        <div className="mx-auto px-1">
-          {intructions.length > 0 ? (
-            <>
-              {intructions.map((instruction, index) => (
-                <Instruction key={index} instruction={instruction} index={index} />
-              ))}
-            </>
-          ) : (
-            <Loading />
-          )}
+    <div className="popup flex w-full flex-col min-h-screen py-12">
+      <div id="accordion-collapse" data-accordion="collapse">
+        <h2 id="accordion-collapse-heading-1">
+          <button
+            type="button"
+            className="flex items-center justify-between w-full p-5 font-medium rtl:text-right bg-gray-700 text-white rounded-t-xl gap-3"
+            data-accordion-target="#accordion-collapse-body-1"
+            onClick={onClickAccordion}
+            aria-expanded="true"
+            aria-controls="accordion-collapse-body-1">
+            <span>Instructions</span>
+            <svg
+              data-accordion-icon
+              className="w-3 h-3 rotate-180 shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 10 6">
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5 5 1 1 5"
+              />
+            </svg>
+          </button>
+        </h2>
+        <div id="accordion-collapse-body-1" className="hidden" aria-labelledby="accordion-collapse-heading-1">
+          <div className="mx-auto flex flex-col items-center justify-center text-white text-base bg-gray-700">
+            {intructions.length > 0 ? (
+              <>
+                {intructions.map((instruction, index) => (
+                  <Instruction key={index} instruction={instruction} index={index} />
+                ))}
+              </>
+            ) : (
+              <Loading />
+            )}
+          </div>
         </div>
       </div>
-      {/* This empty div will take up all available space, pushing the buttons to the bottom */}
-
-      <div className="mt-2 flex flex-col w-full ml-3 px-10 gap-4">
+      <div className="mt-2 flex flex-col w-full gap-4">
         {analyzeResponse ? (
           <div className="flex justify-start text-white text-base text-pretty">
             <div className="mx-auto px-1">
@@ -130,7 +154,7 @@ const Analyze = () => {
           Analyze
         </button>
       </div>
-      <div className="mt-2 flex justify-between w-full ml-3 px-10 gap-4">
+      <div className="mt-2 flex justify-between w-full gap-4">
         <button
           className="w-4/12 px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
           onClick={() => handleReject()}>

@@ -17,7 +17,7 @@ const Instruction: React.FC<InstructionProps> = ({ instruction, index }) => {
         Instruction {index + 1} - {instruction.name}{' '}
         {instruction.isBlackListed ? <BlackListIcon index={index} /> : <CheckIcon index={index} />}
       </div>
-      <div className="bg-gray-800 p-4 rounded-lg">
+      <div className="p-4 rounded-lg">
         <div className="text-sm">Program ID: {instruction.programId}</div>
       </div>
     </div>

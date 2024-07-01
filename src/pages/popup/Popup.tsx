@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 
 import withSuspense from '@src/shared/hoc/withSuspense';
@@ -10,7 +9,6 @@ import Analyze from './pages/Analyze';
 
 const Popup = () => {
   const [page, setPage] = React.useState<Page>(Page.MAIN_PAGE);
-
 
   useEffect(() => {
     chrome.storage.local.get('event', async function (d) {
@@ -35,8 +33,9 @@ const Popup = () => {
       return <SettingsPage handleChangePage={handleChangePage} />;
     case Page.ANALYZE_PAGE:
       return <Analyze />;
+    default:
+      return <Analyze />;
   }
-
 };
 
 export default withErrorBoundary(withSuspense(Popup, <div> Loading ... </div>), <div> Error Occur </div>);
