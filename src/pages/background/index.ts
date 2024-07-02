@@ -1,3 +1,4 @@
+import { decodeAndParseTransaction } from '@root/src/shared/lib/decode-tx';
 import reloadOnUpdate from 'virtual:reload-on-update-in-background-script';
 import 'webextension-polyfill';
 
@@ -15,13 +16,15 @@ const openPopup = () => {
   chrome.windows.create({
     url: chrome.runtime.getURL('/src/pages/popup/index.html'),
     type: 'popup',
-    width: 900,
-    height: 600,
+    width: 600,
+    height: 800,
     focused: true,
   });
 };
 
-const storeDataAndEventType = (type: string, data: unknown, source: string) => {
+// openPopup();
+
+const storeDataAndEventType = async (type: string, data: unknown, source: string) => {
   chrome.storage.local.set(
     {
       event: {
@@ -55,14 +58,17 @@ const sendMessageToContentScripts = (type: string, data: unknown) => {
 
 // Listen for messages from the content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('[background] SIGN_AND_SEND_TRANSACTION: ', message);
   // Handle the message
   if (message.type === 'SIGN_AND_SEND_TRANSACTION') {
     //TODO: analyze the message and send a response back to the content script
-    storeDataAndEventType('SIGN_AND_SEND_TRANSACTION', message.data, message.source);
+    handleMessage(message, sender);
+    // storeDataAndEventType('SIGN_AND_SEND_TRANSACTION', message.data, message.source);
     sendResponse('success');
   }
   if (message.type === 'SIGN_TRANSACTION') {
-    storeDataAndEventType('SIGN_TRANSACTION', message.data, message.source);
+    handleMessage(message, sender);
+    // storeDataAndEventType('SIGN_TRANSACTION', message.data, message.source);
     sendResponse('success');
   }
 
@@ -86,3 +92,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   return true;
 });
+
+const handleMessage = async (message, sender) => {
+  console.log('[handleMessage] message', message);
+  if (!message.data) {
+    console.error('[Background] No data for this transaction');
+    return;
+  }
+
+  try {
+    const parsedTx = await decodeAndParseTransaction(message.data);
+    if (parsedTx) {
+      storeDataAndEventType(message.type, JSON.stringify(parsedTx), message.source);
+    }
+  } catch (error) {
+    console.error('[Background]', error);
+  }
+};

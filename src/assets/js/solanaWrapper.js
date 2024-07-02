@@ -1,86 +1,100 @@
+import * as bs58 from 'bs58';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const originalSignAndSendTransaction = window.solana.signAndSendTransaction;
-const originalSignTransaction = window.solana.signTransaction;
-window.solana.signAndSendTransaction = function (...args) {
-  console.log('Injecting code before signing transactions:', args);
+const originalSignAndSendTransaction = window?.solana?.signAndSendTransaction;
+const originalSignTransaction = window?.solana?.signTransaction;
 
-  const message = {
-    type: 'SIGN_AND_SEND_TRANSACTION',
-    data: args,
-    source: window.location.href,
+const hasSolana = typeof window !== 'undefined' && !!window.solana;
+
+if (hasSolana) {
+  window.solana.signAndSendTransaction = function (...args) {
+    console.log('Injecting code before signing transactions:', args);
+
+    const message = {
+      type: 'SIGN_AND_SEND_TRANSACTION',
+      data: encodeTx(args),
+      source: window.location.href,
+    };
+
+    // Send the message
+    window.postMessage(message, '*');
+
+    // Create a promise that resolves when the event is triggered
+    const promise = new Promise((resolve, reject) => {
+      try {
+        window.addEventListener('message', async function (event) {
+          // We only accept messages from ourselves
+          if (event.source != window) return;
+
+          if (event.data.type && event.data.type == 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
+            console.log('[solana-wrapper] Received approve', event.data.data);
+            const result = await originalSignAndSendTransaction(...args);
+            console.log('[solana-wrapper] Injecting code after signing transactions:', result);
+            // Resolve the promise
+            resolve(result);
+          } else if (event.data.type && event.data.type == 'REJECT_SIGN_AND_SEND_TRANSACTION') {
+            reject('No approve message received');
+          }
+        });
+      } catch (e) {
+        console.log('Error', e);
+        reject(e);
+      }
+    });
+
+    console.log('sent message');
+
+    // Return the promise
+    return promise;
   };
 
-  // Send the message
-  window.postMessage(message, '*');
+  window.solana.signTransaction = function (...args) {
+    console.log('Injecting code before signing transactions:', args);
 
-  // Create a promise that resolves when the event is triggered
-  const promise = new Promise((resolve, reject) => {
-    try {
-      window.addEventListener('message', async function (event) {
-        // We only accept messages from ourselves
-        if (event.source != window) return;
+    const message = {
+      type: 'SIGN_TRANSACTION',
+      data: encodeTx(args),
+      source: window.location.href,
+    };
 
-        if (event.data.type && event.data.type == 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
+    // Send the message
+    window.postMessage(message, '*');
+
+    // Create a promise that resolves when the event is triggered
+    const promise = new Promise((resolve, reject) => {
+      try {
+        window.addEventListener('message', async function (event) {
+          // We only accept messages from ourselves
+          if (event.source != window) return;
           console.log('Received approve', event.data.data);
-          const result = await originalSignAndSendTransaction(...args);
-          console.log('Injecting code after signing transactions:', result);
-          // Resolve the promise
-          resolve(result);
-        } else if (event.data.type && event.data.type == 'REJECT_SIGN_AND_SEND_TRANSACTION') {
-          reject('No approve message received');
-        }
-      });
-    } catch (e) {
-      console.log('Error', e);
-      reject(e);
-    }
-  });
+          if (event.data.type && event.data.type == 'APPROVE_SIGN_TRANSACTION') {
+            console.log('Received approve', event.data.data);
+            const result = await originalSignTransaction(...args);
+            console.log('Injecting code after signing transactions:', result);
+            // Resolve the promise
+            resolve(result);
+          } else if (event.data.type && event.data.type == 'REJECT_SIGN_TRANSACTION') {
+            reject('No approve message received');
+          }
+        });
+      } catch (e) {
+        console.log('Error', e);
+        reject(e);
+      }
+    });
 
-  console.log('sent message');
+    console.log('sent message');
 
-  // Return the promise
-  return promise;
-};
-
-window.solana.signTransaction = function (...args) {
-  console.log('Injecting code before signing transactions:', args);
-
-  const message = {
-    type: 'SIGN_TRANSACTION',
-    data: args,
-    source: window.location.href,
+    // Return the promise
+    return promise;
   };
 
-  // Send the message
-  window.postMessage(message, '*');
+  console.log('Injected code');
+}
 
-  // Create a promise that resolves when the event is triggered
-  const promise = new Promise((resolve, reject) => {
-    try {
-      window.addEventListener('message', async function (event) {
-        // We only accept messages from ourselves
-        if (event.source != window) return;
-
-        if (event.data.type && event.data.type == 'APPROVE_SIGN_TRANSACTION') {
-          console.log('Received approve', event.data.data);
-          const result = await originalSignTransaction(...args);
-          console.log('Injecting code after signing transactions:', result);
-          // Resolve the promise
-          resolve(result);
-        } else if (event.data.type && event.data.type == 'REJECT_SIGN_TRANSACTION') {
-          reject('No approve message received');
-        }
-      });
-    } catch (e) {
-      console.log('Error', e);
-      reject(e);
-    }
-  });
-
-  console.log('sent message');
-
-  // Return the promise
-  return promise;
+const encodeTx = args => {
+  if (args?.[0]?.serialize) {
+    return bs58.encode(args?.[0]?.serialize());
+  }
+  return '';
 };
-
-console.log('Injected code');

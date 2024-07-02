@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path, { resolve } from 'path';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { getCacheInvalidationKey, getPlugins } from './utils/vite';
 import inject from '@rollup/plugin-inject';
 
@@ -21,7 +22,7 @@ export default defineConfig({
       '@pages': pagesDir,
     },
   },
-  plugins: [...getPlugins(isDev), react()],
+  plugins: [...getPlugins(isDev), nodePolyfills(), react()],
   publicDir: resolve(rootDir, 'public'),
   build: {
     outDir: resolve(rootDir, 'dist'),

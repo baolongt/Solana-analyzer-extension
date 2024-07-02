@@ -10,6 +10,7 @@
 # etc
 .DS_Store
 .env.local
+.env
 .idea
 
 # compiled

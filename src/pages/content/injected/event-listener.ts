@@ -3,6 +3,7 @@ import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 refreshOnUpdate('pages/content/injected/event-listener');
 
 const sendEventToBackground = (type: string, data: unknown, source: string) => {
+  console.log('[sendEventToBackground]', type, data);
   chrome.runtime.sendMessage(
     {
       type,
@@ -24,10 +25,12 @@ function initEventListener() {
 
       if (event.data.type && event.data.type == 'SIGN_AND_SEND_TRANSACTION') {
         sendEventToBackground('SIGN_AND_SEND_TRANSACTION', event.data.data, event.data.source);
+        // handleEvent(event.data.data);
       }
 
       if (event.data.type && event.data.type == 'SIGN_TRANSACTION') {
         sendEventToBackground('SIGN_TRANSACTION', event.data.data, event.data.source);
+        // handleEvent(event.data.data);
       }
     },
     false,
@@ -54,3 +57,7 @@ function initEventListener() {
 }
 
 void initEventListener();
+
+// const handleEvent = (data: any) => {
+//   console.log('[handleEvent]', data);
+// };
