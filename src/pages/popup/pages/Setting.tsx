@@ -74,9 +74,7 @@ const SettingsPage = ({ handleChangePage }: { handleChangePage: (page: Page) => 
     <div className="not-popup w-full h-screen flex flex-col items-center justify-center space-y-4">
       <div className="fixed top-0 left-0 w-full shadow">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-          <button
-            onClick={() => handleChangePage(Page.MAIN_PAGE)}
-            className="px-2 py-2 text-white rounded shadow hover:bg-slate-100 hover:text-black">
+          <button onClick={() => handleChangePage(Page.MAIN_PAGE)} className="px-2 py-2 text-black">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -91,7 +89,7 @@ const SettingsPage = ({ handleChangePage }: { handleChangePage: (page: Page) => 
       </div>
       <div className="container mx-auto w-full px-4">
         <div className="mb-1">
-          <label htmlFor="aiModel" className="block text-white text-sm font-bold mb-2">
+          <label htmlFor="aiModel" className="block text-black text-sm font-bold mb-2">
             AI Model
           </label>
           <Select
@@ -101,7 +99,7 @@ const SettingsPage = ({ handleChangePage }: { handleChangePage: (page: Page) => 
           />
         </div>
         <div className="mb-1">
-          <label htmlFor="token" className="block text-white text-sm font-bold mb-2">
+          <label htmlFor="token" className="block text-black text-sm font-bold mb-2">
             Token
           </label>
           <input

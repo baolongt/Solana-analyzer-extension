@@ -45,9 +45,7 @@ const MainPage = ({ handleChangePage }: { handleChangePage: (page: Page) => void
     <div className="not-popup w-screen flex items-center justify-center">
       <div className="fixed top-0 left-0 w-full shadow">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-          <button
-            onClick={() => handleChangePage(Page.SETTING_PAGE)}
-            className="px-2 py-2 text-white rounded shadow hover:bg-slate-100 hover:text-black">
+          <button onClick={() => handleChangePage(Page.SETTING_PAGE)} className="px-2 py-2 text-black">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

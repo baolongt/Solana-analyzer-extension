@@ -7,6 +7,7 @@ import { PublicKey } from '@solana/web3.js';
 import Instruction from '../components/Intruction';
 import { OpenRouterService } from '../services/openAiService';
 import { buildPrompt } from '../utils';
+import { initFlowbite } from 'flowbite';
 
 const Analyze = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -33,11 +34,12 @@ const Analyze = () => {
   } | null>();
 
   useEffect(() => {
+    initFlowbite();
     chrome.storage.local.get('event', async function (d) {
       if (d) {
         setData(d.event);
-        const { data, source } = d.event;
-        const intructions = await analyzeArguments(data, source);
+        const { data } = d.event;
+        const intructions = await analyzeArguments(data);
 
         console.log('intructions', intructions);
         setInstructions(intructions);
@@ -104,7 +106,7 @@ const Analyze = () => {
             onClick={onClickAccordion}
             aria-expanded="true"
             aria-controls="accordion-collapse-body-1">
-            <span>Instructions</span>
+            <span className="text-base">Instructions</span>
             <svg
               data-accordion-icon
               className="w-3 h-3 rotate-180 shrink-0"
