@@ -1,5 +1,6 @@
 import reloadOnUpdate from 'virtual:reload-on-update-in-background-script';
 import 'webextension-polyfill';
+import { handleMessage } from './handleMessage';
 
 reloadOnUpdate('pages/background');
 
@@ -17,12 +18,11 @@ const openPopup = () => {
     type: 'popup',
     width: 520,
     height: 670,
-
     focused: true,
   });
 };
 
-const storeDataAndEventType = (type: string, data: unknown, source: string) => {
+export const storeDataAndEventType = (type: string, data: unknown, source: string) => {
   chrome.storage.local.set(
     {
       event: {
@@ -55,34 +55,28 @@ const sendMessageToContentScripts = (type: string, data: unknown) => {
 };
 
 // Listen for messages from the content script
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async message => {
   // Handle the message
   if (message.type === 'SIGN_AND_SEND_TRANSACTION') {
     //TODO: analyze the message and send a response back to the content script
-    storeDataAndEventType('SIGN_AND_SEND_TRANSACTION', message.data, message.source);
-    sendResponse('success');
+    handleMessage(message);
   }
   if (message.type === 'SIGN_TRANSACTION') {
-    storeDataAndEventType('SIGN_TRANSACTION', message.data, message.source);
-    sendResponse('success');
+    handleMessage(message);
   }
 
   // Send a response back to the content script
   if (message.type === 'APPROVE_SIGN_AND_SEND_TRANSACTION') {
     sendMessageToContentScripts('APPROVE_SIGN_AND_SEND_TRANSACTION', message.data);
-    sendResponse({ status: 'Message received' });
   }
   if (message.type === 'REJECT_SIGN_AND_SEND_TRANSACTION') {
     sendMessageToContentScripts('REJECT_SIGN_AND_SEND_TRANSACTION', message.data);
-    sendResponse({ status: 'Message received' });
   }
   if (message.type === 'APPROVE_SIGN_TRANSACTION') {
     sendMessageToContentScripts('APPROVE_SIGN_TRANSACTION', message.data);
-    sendResponse({ status: 'Message received' });
   }
   if (message.type === 'REJECT_SIGN_TRANSACTION') {
     sendMessageToContentScripts('REJECT_SIGN_TRANSACTION', message.data);
-    sendResponse({ status: 'Message received' });
   }
 
   return true;

@@ -1,31 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
-import { analyzeArguments } from '../analyzeArguments';
 import { AIResponseText, Loading } from '../components';
-import { PublicKey } from '@solana/web3.js';
 import Instruction from '../components/Intruction';
 import { OpenRouterService } from '../services/openAiService';
 import { buildPrompt } from '../utils';
 import { initFlowbite } from 'flowbite';
+import { enrichTransaction } from '@root/src/shared/lib/enrichTransaction';
 
 const Analyze = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [intructions, setInstructions] = useState<
     {
-      data: Buffer;
-      keys: {
-        pubkey: PublicKey;
-        isSigner: boolean;
-        isWritable: boolean;
-      }[];
       programId: string;
       name: string;
-      enrichProgramDetail: Record<string, unknown> | null;
+      detail: Record<string, unknown> | null;
       isBlackListed: boolean;
     }[]
   >([]);
   const [analyzeResponse, setAnalyzeResponse] = useState<string | null>('');
+  const [isAskingAI, setIsAskingAI] = useState<boolean>(false);
 
   const [data, setData] = useState<{
     type: string;
@@ -39,10 +33,9 @@ const Analyze = () => {
       if (d) {
         setData(d.event);
         const { data } = d.event;
-        const intructions = await analyzeArguments(data);
-
-        console.log('intructions', intructions);
-        setInstructions(intructions);
+        const enrichTrans = await enrichTransaction(JSON.parse(data));
+        // const intructions = await analyzeArguments(data);
+        setInstructions(enrichTrans);
       }
     });
   }, []);
@@ -73,6 +66,7 @@ const Analyze = () => {
   };
 
   const handleAnalyze = async () => {
+    setIsAskingAI(true);
     chrome.storage.local.get('event', async function (d) {
       if (d) {
         const { source } = d.event;
@@ -89,6 +83,8 @@ const Analyze = () => {
             setAnalyzeResponse(res);
           },
         );
+
+        setIsAskingAI(false);
       }
     });
   };
@@ -140,9 +136,9 @@ const Analyze = () => {
       </div>
       <div className="mt-2 flex flex-col w-full gap-4">
         {analyzeResponse ? (
-          <div className="flex justify-start text-white text-base text-pretty">
+          <div className="flex justify-start text-pretty p-5">
             <div className="mx-auto px-1">
-              <div className="text-white text-base">
+              <div className="text-black text-base">
                 <AIResponseText content={analyzeResponse} />
               </div>
             </div>
@@ -153,7 +149,7 @@ const Analyze = () => {
         <button
           className="w-full px-4 py-2 bg-gray-500 text-base text-white rounded shadow hover:bg-gray-600"
           onClick={() => handleAnalyze()}>
-          Analyze
+          {isAskingAI ? <Loading /> : <>Analyze</>}
         </button>
       </div>
       <div className="mt-2 flex justify-between w-full gap-4">

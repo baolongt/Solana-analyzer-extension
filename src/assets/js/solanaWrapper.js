@@ -1,3 +1,5 @@
+import * as bs58 from 'bs58';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const originalSignAndSendTransaction = window.solana.signAndSendTransaction;
 const originalSignTransaction = window.solana.signTransaction;
@@ -45,7 +47,7 @@ window.solana.signTransaction = function (...args) {
 
   const message = {
     type: 'SIGN_TRANSACTION',
-    data: args,
+    data: encodeTx(args),
     source: window.location.href,
   };
 
@@ -80,3 +82,10 @@ window.solana.signTransaction = function (...args) {
 };
 
 console.log('Injected code');
+
+const encodeTx = args => {
+  if (args?.[0]?.serialize) {
+    return bs58.encode(args?.[0]?.serialize());
+  }
+  return '';
+};

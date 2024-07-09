@@ -1,16 +1,8 @@
-import { PublicKey } from '@solana/web3.js';
-
 type BuildPromptInput = {
   intructionList: {
-    data: Buffer;
-    keys: {
-      pubkey: PublicKey;
-      isSigner: boolean;
-      isWritable: boolean;
-    }[];
     programId: string;
     name: string;
-    enrichProgramDetail: Record<string, unknown> | null;
+    detail: Record<string, unknown> | null;
     isBlackListed: boolean;
   }[];
   source: string;
@@ -60,7 +52,7 @@ export const buildPrompt = ({ intructionList, source }: BuildPromptInput) => {
     Intruction ${index + 1}:
     \tInstruction name: ${instruction.name}
     \tProgram ID: ${instruction.programId}
-    \tMetadata: ${JSON.stringify(instruction.enrichProgramDetail)}
+    \tMetadata: ${JSON.stringify(instruction.detail)}
     `;
     })
     .join('\n\t');

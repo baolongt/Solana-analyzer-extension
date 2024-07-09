@@ -4,7 +4,7 @@ interface InstructionProps {
   instruction: {
     programId: string;
     name: string;
-    enrichProgramDetail: Record<string, unknown> | null;
+    detail: Record<string, unknown> | null;
     isBlackListed: boolean;
   };
   index: number;
