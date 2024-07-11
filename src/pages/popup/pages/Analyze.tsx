@@ -7,6 +7,7 @@ import { OpenRouterService } from '../services/openAiService';
 import { buildPrompt } from '../utils';
 import { initFlowbite } from 'flowbite';
 import { enrichTransaction } from '@root/src/shared/lib/enrichTransaction';
+import { PhantomWalletBlacklist } from '../services/phantomWalletBlacklist';
 
 const Analyze = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,6 +21,7 @@ const Analyze = () => {
   >([]);
   const [analyzeResponse, setAnalyzeResponse] = useState<string | null>('');
   const [isAskingAI, setIsAskingAI] = useState<boolean>(false);
+  const [isNotSafeSource, setIsNotSafeSource] = useState<boolean>(false);
 
   const [data, setData] = useState<{
     type: string;
@@ -32,10 +34,13 @@ const Analyze = () => {
     chrome.storage.local.get('event', async function (d) {
       if (d) {
         setData(d.event);
-        const { data } = d.event;
+        const { data, source } = d.event;
         const enrichTrans = await enrichTransaction(JSON.parse(data));
         // const intructions = await analyzeArguments(data);
         setInstructions(enrichTrans);
+
+        const isBlackedlist = (await PhantomWalletBlacklist.getInstance()).isBlacklisted(source);
+        setIsNotSafeSource(isBlackedlist);
       }
     });
   }, []);
@@ -89,17 +94,33 @@ const Analyze = () => {
     });
   };
 
-  const onClickAccordion = () => {};
-
   return (
     <div className="popup flex w-full flex-col min-h-screen py-12">
+      {isNotSafeSource && (
+        <div className="bg-red-500 mx-auto w-10/12 p-2 mb-2 rounded-xl flex justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6 mt-1">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+            />
+          </svg>
+
+          <h2 className="text-xl">Warning this website is in blacklist</h2>
+        </div>
+      )}
       <div id="accordion-collapse" data-accordion="collapse">
         <h2 id="accordion-collapse-heading-1">
           <button
             type="button"
             className="flex items-center justify-between w-full p-5 font-medium rtl:text-right bg-gray-700 text-white rounded-t-xl gap-3"
             data-accordion-target="#accordion-collapse-body-1"
-            onClick={onClickAccordion}
             aria-expanded="true"
             aria-controls="accordion-collapse-body-1">
             <span className="text-base">Instructions</span>

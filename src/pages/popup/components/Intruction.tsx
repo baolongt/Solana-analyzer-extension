@@ -29,7 +29,7 @@ const BlackListIcon = ({ index }: { index: number }) => {
   return (
     <>
       <button
-        // ta-tooltip-target={`tooltip-top-${index}`}
+        //ta-tooltip-target={`tooltip-top-${index}`}
         data-tooltip-placement="top"
         type="button"
         className="mb-2 md:mb-0 text-sm text-red-600 text-center">
@@ -49,7 +49,7 @@ const BlackListIcon = ({ index }: { index: number }) => {
       </button>
 
       <div
-        // ta-tooltip-target={`tooltip-top-${index}`}
+        id={`tooltip-top-${index}`}
         role="tooltip"
         className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
         Tooltip on top
