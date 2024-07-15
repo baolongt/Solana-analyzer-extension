@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Page } from '../types/page';
+import logo from '../assets/logo.png';
 
 const MainPage = ({ handleChangePage }: { handleChangePage: (page: Page) => void }) => {
   const [isStop, setIsStop] = useState(false);
@@ -64,7 +65,10 @@ const MainPage = ({ handleChangePage }: { handleChangePage: (page: Page) => void
         </div>
       </div>
       <div className="flex flex-col">
-        <div className="mt-30 w-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-center">
+          <img src={logo} alt="logo" className="w-20 h-20" />
+        </div>
+        <div className="mt-10 w-full flex items-center justify-center">
           <button
             onClick={() => handleStop()}
             className="mt-4 px-4 py-2 bg-white text-zinc-950 text-base text-white rounded shadow hover:bg-slate-100">
@@ -103,9 +107,11 @@ const MainPage = ({ handleChangePage }: { handleChangePage: (page: Page) => void
         </div>
         <div className="fixed inset-x-0 bottom-0 p-4 bg-transparent">
           <div className="w-full">
-            <button className="w-full mt-4 px-4 py-2 bg-white text-zinc-950 text-base text-white rounded shadow hover:bg-slate-100">
-              Report scam
-            </button>
+            <a href="https://forms.gle/4tUZ7MNARo5BB7Av8" target="_blank" rel="noopener noreferrer">
+              <button className="w-full mt-4 px-4 py-2 bg-white text-zinc-950 text-base text-white rounded shadow hover:bg-slate-100">
+                Report scam
+              </button>
+            </a>
           </div>
         </div>
       </div>
