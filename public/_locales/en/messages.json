@@ -1,10 +1,10 @@
 {
   "extensionDescription": {
-    "description": "Solana Analyzer Chrome extension",
-    "message": "Solana Analyzer Chrome extension"
+    "description": "Transaction Analyzer",
+    "message": "Solana based transaction analyzer with AI"
   },
   "extensionName": {
-    "description": "Solana Analyzer",
-    "message": "Solana Analyzer Chrome extension"
+    "description": "Transaction Analyzer",
+    "message": "Transaction Analyzer"
   }
 }

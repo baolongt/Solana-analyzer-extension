@@ -45,7 +45,7 @@ export default defineConfig({
       },
       output: {
         entryFileNames: 'src/pages/[name]/index.js',
-        chunkFileNames: isDev ? 'assets/js/[name].js' : 'assets/js/[name].[hash].js',
+        chunkFileNames: isDev ? 'assets/js/[name].js' : 'assets/js/[name].js',
         assetFileNames: assetInfo => {
           const { name } = path.parse(assetInfo.name);
           const assetFileName = name === 'contentStyle' ? `${name}${getCacheInvalidationKey()}` : name;
