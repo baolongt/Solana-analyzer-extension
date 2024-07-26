@@ -45,6 +45,8 @@ sequenceDiagram
     window.solana-->>-Frontend: return signature
 ```
 
+## Chrome extension
+The extension is pushlish in this [link]([url](https://chromewebstore.google.com/detail/transaction-analyzer/pfoaddnhhofjoadjjdfnmhoeiecickfb?authuser=0&hl=en))
 
 ## Browser Support
 
